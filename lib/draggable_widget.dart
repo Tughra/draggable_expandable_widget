@@ -29,11 +29,10 @@ class _DraggableWidgetState extends State<DraggableWidget> {
   void initState() {
     super.initState();
     _offset = widget.initialOffset;
-
-    WidgetsBinding.instance?.addPostFrameCallback(_setBoundary);
+    Future.delayed(const Duration(seconds: 1),_setBoundary);
   }
 
-  void _setBoundary(_) {
+  void _setBoundary() {
     final RenderBox parentRenderBox = widget.parentKey.currentContext?.findRenderObject() as RenderBox;
     final RenderBox renderBox = _key.currentContext?.findRenderObject() as RenderBox;
 

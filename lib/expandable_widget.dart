@@ -10,16 +10,21 @@ class ExpandableFab extends StatefulWidget {
   const ExpandableFab({
     super.key,
     this.initialOpen,
+    this.duration,
+    this.closeRotate=true,
     required this.distance,
     required this.children,
   });
 
+  final Duration? duration;
   final bool? initialOpen;
+  final bool? closeRotate;
   final double distance;
   final List<Widget> children;
 
   @override
-  _ExpandableFabState createState() => _ExpandableFabState();
+  State<ExpandableFab> createState() => _ExpandableFabState();
+  //_ExpandableFabState createState() => _ExpandableFabState();
 }
 
 class _ExpandableFabState extends State<ExpandableFab>
@@ -34,12 +39,12 @@ class _ExpandableFabState extends State<ExpandableFab>
     _open = widget.initialOpen ?? false;
     _controller = AnimationController(
       value: _open ? 1.0 : 0.0,
-      duration: const Duration(milliseconds: 250),
+      duration:widget.duration??const Duration(milliseconds: 500),
       vsync: this,
     );
     _expandAnimation = CurvedAnimation(
       curve: Curves.fastOutSlowIn,
-      reverseCurve: Curves.easeOutQuad,
+      reverseCurve: Curves.slowMiddle,
       parent: _controller,
     );
   }
@@ -63,17 +68,17 @@ class _ExpandableFabState extends State<ExpandableFab>
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.bottomRight,
-      clipBehavior: Clip.none,
-      children: [
-        SizedBox(width: widget.distance+30,
-          height: widget.distance+30,),
-        _buildTapToCloseFab(),
-        ..._buildExpandingActionButtons(),
-        _buildTapToOpenFab(),
-      ],
-    );
+    return
+      Stack(
+          alignment: Alignment.bottomRight,
+          clipBehavior: Clip.none,
+          children: [
+             SizedBox(width: 200,height: 200,),
+            ..._buildExpandingActionButtons(),
+            _buildTapToCloseFab(),
+            _buildTapToOpenFab(),
+          ],
+        );
   }
 
   Widget _buildTapToCloseFab() {
@@ -109,6 +114,7 @@ class _ExpandableFabState extends State<ExpandableFab>
     i++, angleInDegrees += step) {
       children.add(
         _ExpandingActionButton(
+          closeRotate: widget.closeRotate!,
           directionInDegrees: angleInDegrees,
           maxDistance: widget.distance,
           progress: _expandAnimation,
@@ -152,8 +158,9 @@ class _ExpandingActionButton extends StatelessWidget {
     required this.maxDistance,
     required this.progress,
     required this.child,
+    required this.closeRotate
   });
-
+  final bool closeRotate;
   final double directionInDegrees;
   final double maxDistance;
   final Animation<double> progress;
@@ -161,6 +168,8 @@ class _ExpandingActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print((directionInDegrees*(math.pi / 180.0)).toString()+"-");
+    print(math.pi);
     return AnimatedBuilder(
       animation: progress,
       builder: (context, child) {
@@ -172,7 +181,7 @@ class _ExpandingActionButton extends StatelessWidget {
           right: 4.0 + offset.dx,
           bottom: 4.0 + offset.dy,
           child: Transform.rotate(
-            angle: (1.0 - progress.value) * math.pi / 2,
+            angle:closeRotate?0:(1.0 - progress.value) * math.pi / 2,
             child: child!,
           ),
         );
