@@ -3,12 +3,10 @@ class DraggableWidget extends StatefulWidget {
   final GlobalKey parentKey;
   final Widget child;
   final Offset initialOffset;
-  final VoidCallback onPressed;
 
   const DraggableWidget({Key? key,
     required this.child,
     required this.initialOffset,
-    required this.onPressed,
     required this.parentKey,
   }) : super(key: key);
 
@@ -43,8 +41,8 @@ class _DraggableWidgetState extends State<DraggableWidget> {
       setState(() {
         _minOffset = const Offset(0, 0);
         _maxOffset = Offset(
-            parentSize.width - size.width,
-            parentSize.height - size.height
+            parentSize.width-56,
+            parentSize.height-size.height
         );
       });
     } catch (e) {
@@ -94,7 +92,6 @@ class _DraggableWidgetState extends State<DraggableWidget> {
               _isDragging = false;
             });
           } else {
-            widget.onPressed();
           }
         },
         child: Container(

@@ -2,6 +2,8 @@ import 'package:draggable_expandable_widget/draggable_widget.dart';
 import 'package:draggable_expandable_widget/expandable_widget.dart';
 import 'package:flutter/material.dart';
 
+import 'asd.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -72,6 +74,35 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
+      floatingActionButton:(DraggableFab(child:ExpandableFab(
+        distance: 100,
+        children: [
+          FloatingActionButton(
+            onPressed: _incrementCounter,
+            tooltip: 'Increment',
+            child: const Icon(Icons.add),
+          ),
+          FloatingActionButton(
+            onPressed: _incrementCounter,
+            tooltip: 'Increment',
+            child: const Icon(Icons.add),
+          ),
+          FloatingActionButton(
+            onPressed: _incrementCounter,
+            tooltip: 'Increment',
+            child: const Icon(Icons.add),
+          ),
+          FloatingActionButton(
+            onPressed: _incrementCounter,
+            tooltip: 'Increment',
+            child: const Icon(Icons.add),
+          ),FloatingActionButton(
+            onPressed: _incrementCounter,
+            tooltip: 'Increment',
+            child: const Icon(Icons.add),
+          )
+        ],
+      ) ,)),
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
@@ -81,12 +112,12 @@ class _MyHomePageState extends State<MyHomePage> {
         key: key,
         children: [
           Positioned(right: 10,top: 10,child: Text(_counter.toString())),
+/*
           DraggableWidget(
             initialOffset:const Offset(10,10),
             parentKey: key,
-            onPressed: () {  },
             child: ExpandableFab(
-              distance: 100,
+              distance: 300,
               children: [
                 FloatingActionButton(
                   onPressed: _incrementCounter,
@@ -115,6 +146,8 @@ class _MyHomePageState extends State<MyHomePage> {
               ],
             ),
           )
+
+ */
         ],
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );

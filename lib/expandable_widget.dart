@@ -73,7 +73,7 @@ class _ExpandableFabState extends State<ExpandableFab>
           alignment: Alignment.bottomRight,
           clipBehavior: Clip.none,
           children: [
-             SizedBox(width: 200,height: 200,),
+          //   ColoredBox(color: Colors.black12,child: SizedBox(width: 200,height: 200,)),
             ..._buildExpandingActionButtons(),
             _buildTapToCloseFab(),
             _buildTapToOpenFab(),
@@ -170,26 +170,31 @@ class _ExpandingActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     print((directionInDegrees*(math.pi / 180.0)).toString()+"-");
     print(math.pi);
-    return AnimatedBuilder(
-      animation: progress,
-      builder: (context, child) {
-        final offset = Offset.fromDirection(
-          directionInDegrees * (math.pi / 180.0),
-          progress.value * maxDistance,
-        );
-        return Positioned(
-          right: 4.0 + offset.dx,
-          bottom: 4.0 + offset.dy,
-          child: Transform.rotate(
-            angle:closeRotate?0:(1.0 - progress.value) * math.pi / 2,
-            child: child!,
+    return Stack(
+      children: [
+        Container(color: Colors.amber,width: 200,height: 200,),
+        AnimatedBuilder(
+          animation: progress,
+          builder: (context, child) {
+            final offset = Offset.fromDirection(
+              directionInDegrees * (math.pi / 180.0),
+              progress.value * maxDistance,
+            );
+            return Positioned(
+              right: 4.0 + offset.dx,
+              bottom: 4.0 + offset.dy,
+              child: Transform.rotate(
+                angle:closeRotate?0:(1.0 - progress.value) * math.pi / 2,
+                child: child!,
+              ),
+            );
+          },
+          child: FadeTransition(
+            opacity: progress,
+            child: child,
           ),
-        );
-      },
-      child: FadeTransition(
-        opacity: progress,
-        child: child,
-      ),
+        ),
+      ],
     );
   }
 }
