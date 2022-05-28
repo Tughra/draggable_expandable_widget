@@ -1,5 +1,6 @@
 import 'package:draggable_expandable_widget/draggable_widget.dart';
 import 'package:draggable_expandable_widget/expandable_widget.dart';
+import 'package:draggable_expandable_widget/testpage.dart';
 import 'package:flutter/material.dart';
 
 import 'asd.dart';
@@ -15,6 +16,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         // This is the theme of your application.
@@ -53,7 +55,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  final key = GlobalKey();
   void _incrementCounter() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
@@ -73,82 +74,42 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+    final Size _size=MediaQuery.of(context).size;
+    print(_size.width);
+    print(_size.height);
     return Scaffold(
-      floatingActionButton:(DraggableFab(child:ExpandableFab(
-        distance: 100,
-        children: [
-          FloatingActionButton(
-            onPressed: _incrementCounter,
-            tooltip: 'Increment',
-            child: const Icon(Icons.add),
-          ),
-          FloatingActionButton(
-            onPressed: _incrementCounter,
-            tooltip: 'Increment',
-            child: const Icon(Icons.add),
-          ),
-          FloatingActionButton(
-            onPressed: _incrementCounter,
-            tooltip: 'Increment',
-            child: const Icon(Icons.add),
-          ),
-          FloatingActionButton(
-            onPressed: _incrementCounter,
-            tooltip: 'Increment',
-            child: const Icon(Icons.add),
-          ),FloatingActionButton(
-            onPressed: _incrementCounter,
-            tooltip: 'Increment',
-            child: const Icon(Icons.add),
-          )
-        ],
-      ) ,)),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: ExpandableFab(
+          curveAnimation: Curves.linear,
+          reverseAnimation: Curves.linear,
+          childrenType: ChildrenType.rowChildren,
+          closeRotate: true,
+          childrenAlignment: Alignment.topRight,
+
+          onTab: (){
+           // Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ASD()));
+          },
+
+          distance: 100,
+          children: [
+            FloatingActionButton(onPressed: (){},child: Icon(Icons.accessibility_rounded),),
+            FloatingActionButton(onPressed: (){},child: Icon(Icons.accessibility_rounded),),
+            FloatingActionButton(onPressed: (){},child: Icon(Icons.accessibility_rounded),),
+            FloatingActionButton(onPressed: (){},child: Icon(Icons.accessibility_rounded),),
+            FloatingActionButton(onPressed: (){},child: Icon(Icons.accessibility_rounded),),
+           //Container(width: 100,height: 100,color: Colors.red,)
+          ],
+        ),
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Stack(
-        key: key,
-        children: [
-          Positioned(right: 10,top: 10,child: Text(_counter.toString())),
-/*
-          DraggableWidget(
-            initialOffset:const Offset(10,10),
-            parentKey: key,
-            child: ExpandableFab(
-              distance: 300,
-              children: [
-                FloatingActionButton(
-                  onPressed: _incrementCounter,
-                  tooltip: 'Increment',
-                  child: const Icon(Icons.add),
-                ),
-                FloatingActionButton(
-                  onPressed: _incrementCounter,
-                  tooltip: 'Increment',
-                  child: const Icon(Icons.add),
-                ),
-                FloatingActionButton(
-                  onPressed: _incrementCounter,
-                  tooltip: 'Increment',
-                  child: const Icon(Icons.add),
-                ),
-                FloatingActionButton(
-                  onPressed: _incrementCounter,
-                  tooltip: 'Increment',
-                  child: const Icon(Icons.add),
-                ),FloatingActionButton(
-                  onPressed: _incrementCounter,
-                  tooltip: 'Increment',
-                  child: const Icon(Icons.add),
-                )
-              ],
-            ),
-          )
-
- */
-        ],
+      body: Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        color: Colors.transparent,
+        //child: Center(child: Container(color: Colors.red,width: 200,height: 200,child: DraggableFab(child:Text("123"),),),),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }

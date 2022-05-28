@@ -27,7 +27,8 @@ class _DraggableWidgetState extends State<DraggableWidget> {
   void initState() {
     super.initState();
     _offset = widget.initialOffset;
-    Future.delayed(const Duration(seconds: 1),_setBoundary);
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {_setBoundary(); });
+  //  Future.delayed(const Duration(seconds: 1),_setBoundary);
   }
 
   void _setBoundary() {
@@ -41,7 +42,7 @@ class _DraggableWidgetState extends State<DraggableWidget> {
       setState(() {
         _minOffset = const Offset(0, 0);
         _maxOffset = Offset(
-            parentSize.width-56,
+            parentSize.width-size.width,
             parentSize.height-size.height
         );
       });

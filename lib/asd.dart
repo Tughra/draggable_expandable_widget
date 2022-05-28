@@ -1,20 +1,33 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 /// Draggable FAB widget which is always aligned to
 /// the edge of the screen - be it left,top, right,bottom
-class DraggableFab extends StatefulWidget {
+class X extends FloatingActionButtonLocation{
+
+  X(){
+    getOffset(null);
+  }
+  @override
+  Offset getOffset(ScaffoldPrelayoutGeometry? scaffoldGeometry,{double? width,double? height}) {
+   return Offset(width??0,height??0);
+  }
+
+}
+class DraggableFab extends StatefulWidget{
   final Widget child;
   final Offset? initPosition;
-  final double securityBottom;
+  final double distance;
 
   const DraggableFab(
-      {Key? key, required this.child, this.initPosition, this.securityBottom: 0})
-      : super(key: key);
+      {Key? key, required this.child, this.initPosition, this.distance=200})
+      : super(key: key,);
 
   @override
   _DraggableFabState createState() => _DraggableFabState();
+
 }
 
 class _DraggableFabState extends State<DraggableFab> {
@@ -31,49 +44,56 @@ class _DraggableFabState extends State<DraggableFab> {
     super.initState();
     WidgetsBinding.instance
         .addPostFrameCallback((_) => _getWidgetSize(context));
-    _minOffset=Offset(0, 0);
-    _offset=Offset(0, 0);
+    _minOffset=const Offset(0,0);//expandable ın distancendan buton size ı çıkar
+    _offset=widget.initPosition??const Offset(50, 50);
   }
 
   void _getWidgetSize(BuildContext context) {
-    _widgetSize = context.size!;
-    _maxOffset=Offset(_widgetSize.width, _widgetSize.height);
+  _widgetSize = context.size!;
+   //_offset=Offset(_widgetSize.width-100, _widgetSize.height-100);//initial pozition
+    _maxOffset=Offset(_widgetSize.width-50, _widgetSize.height-50);//secilen widgetın sizenın çıkar
 
+    /*
     if (widget.initPosition != null) {
       _calculatePosition(widget.initPosition!);
     }
+     */
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(children: [
-      Positioned(
-        left: _offset.dx,
-        top: _offset.dy,
-        child:Listener(
-          onPointerMove: (PointerMoveEvent pointerMoveEvent) {
-            _handleDragEnded(pointerMoveEvent);
-          },
-          onPointerUp: (PointerUpEvent pointerUpEvent) {
-            debugPrint('onPointerUp');
-          },
-          child: Container(
+    print("dx:${_offset.dx}");
+    print("dx:${_offset.dy}");
+    return Stack(alignment: Alignment.centerLeft,
+      children: [
+        Positioned(
+          left: _offset.dx,
+          top: _offset.dy,
+          child:Listener(
+            onPointerMove: (PointerMoveEvent pointerMoveEvent) {
+              _handleDragEnded(pointerMoveEvent);
+            },
+            onPointerUp: (PointerUpEvent pointerUpEvent) {
+              debugPrint('onPointerUp');
+            },
+            child: Container(
+              child: widget.child,
+            ),
+          ) ,
+          /*
+          Draggable(
             child: widget.child,
-          ),
-        ) ,
-        /*
-        Draggable(
-          child: widget.child,
-          feedback: widget.child,
-          onDragEnd: _handleDragEnded,
-          childWhenDragging: Container(
-            width: 0.0,
-            height: 0.0,
-          ),
-        )
-         */
-      )
-    ]);
+            feedback: widget.child,
+            onDragEnd: _handleDragEnded,
+            childWhenDragging: Container(
+              width: 0.0,
+              height: 0.0,
+            ),
+          )
+           */
+        ),
+      ],
+    );
   }
 
   void _handleDragEnded(PointerMoveEvent draggableDetails) {
@@ -81,8 +101,10 @@ class _DraggableFabState extends State<DraggableFab> {
     double newOffsetY = _offset.dy + draggableDetails.delta.dy;
 
     if (newOffsetX < _minOffset.dx) {
+      print("new x < max");
       newOffsetX = _minOffset.dx;
     } else if (newOffsetX > _maxOffset.dx) {
+      print("new x > max");
       newOffsetX = _maxOffset.dx;
     }
 
@@ -98,6 +120,7 @@ class _DraggableFabState extends State<DraggableFab> {
    // this._calculatePosition(draggableDetails.offset);
   }
 
+/*
   void _calculatePosition(Offset targetOffset) {
     if (_screenWidthMid == null || _screenHeightMid == null) {
       Size screenSize = MediaQuery.of(context).size;
@@ -147,8 +170,6 @@ class _DraggableFabState extends State<DraggableFab> {
     }
     setState(() {});
   }
-
-  /// Computes the appropriate anchor screen edge for the widget
   Anchor _getAnchor(Offset position) {
     if (position.dx < _screenWidthMid! && position.dy < _screenHeightMid!) {
       return position.dx < position.dy ? Anchor.LEFT_FIRST : Anchor.TOP_FIRST;
@@ -168,6 +189,9 @@ class _DraggableFabState extends State<DraggableFab> {
           : Anchor.BOTTOM_FOURTH;
     }
   }
+
+ */
+  /// Computes the appropriate anchor screen edge for the widget
 }
 
 /// #######################################
@@ -187,3 +211,48 @@ enum Anchor {
   LEFT_THIRD,
   BOTTOM_THIRD,
   RIGHT_FOURTH,  BOTTOM_FOURTH}
+
+
+/*
+typedef void OnWidgetSizeChange(Size size);
+class WidgetSizeRenderObject extends RenderProxyBox {
+
+  final OnWidgetSizeChange onSizeChange;
+  Size? currentSize;
+
+  WidgetSizeRenderObject(this.onSizeChange);
+
+  @override
+  void performLayout() {
+    super.performLayout();
+
+    try {
+      Size? newSize = child?.size;
+
+      if (newSize != null && currentSize != newSize) {
+        currentSize = newSize;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          onSizeChange(newSize);
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+}
+class WidgetSizeOffsetWrapper extends SingleChildRenderObjectWidget {
+
+  final OnWidgetSizeChange onSizeChange;
+
+  const WidgetSizeOffsetWrapper({
+    Key? key,
+    required this.onSizeChange,
+    required Widget child,
+  }) : super(key: key, child: child);
+
+  @override
+  RenderObject createRenderObject(BuildContext context) {
+    return WidgetSizeRenderObject(onSizeChange);
+  }
+}
+ */
