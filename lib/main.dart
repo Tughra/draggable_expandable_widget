@@ -1,5 +1,6 @@
 import 'package:draggable_expandable_widget/draggable_widget.dart';
 import 'package:draggable_expandable_widget/expandable_widget.dart';
+import 'package:draggable_expandable_widget/float_action_location.dart';
 import 'package:draggable_expandable_widget/testpage.dart';
 import 'package:flutter/material.dart';
 
@@ -78,13 +79,14 @@ class _MyHomePageState extends State<MyHomePage> {
     print(_size.width);
     print(_size.height);
     return Scaffold(
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButtonLocation:ExpandableFloatLocation(),
         floatingActionButton: ExpandableFab(
+          enableChildrenOpenAnimation: false,
           curveAnimation: Curves.linear,
           reverseAnimation: Curves.linear,
-          childrenType: ChildrenType.rowChildren,
+          childrenType: ChildrenType.columnChildren,
           closeRotate: true,
-          childrenAlignment: Alignment.topRight,
+          childrenAlignment: Alignment.topLeft,
 
           onTab: (){
            // Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ASD()));
@@ -109,6 +111,11 @@ class _MyHomePageState extends State<MyHomePage> {
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         color: Colors.transparent,
+        child: Center(
+          child: TextButton(onPressed: (){
+            print("12312312312");
+          }, child: Text("dddd")),
+        ),
         //child: Center(child: Container(color: Colors.red,width: 200,height: 200,child: DraggableFab(child:Text("123"),),),),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );

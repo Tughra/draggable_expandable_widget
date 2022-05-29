@@ -33,7 +33,9 @@ class ExpandableFab extends StatefulWidget {
       this.reverseAnimation,
       this.childrenMargin,
       this.childrenBacgroundColor,
-      this.childrenInnerMargin});
+      this.childrenInnerMargin,
+      this.enableChildrenOpenAnimation=true,
+      this.childrenBoxDecoration});
 
   final ChildrenType? childrenType;
   final ClosePosition? closePosition;
@@ -46,6 +48,7 @@ class ExpandableFab extends StatefulWidget {
   final Alignment? childrenAlignment;
   final Curve? curveAnimation;
   final Curve? reverseAnimation;
+  final bool? enableChildrenOpenAnimation;
 
   /// Open and Close Widget's initial distance from bottom right
   final double distance;
@@ -53,6 +56,7 @@ class ExpandableFab extends StatefulWidget {
   final EdgeInsets? childrenMargin;
   final List<Widget> children;
   final Color? childrenBacgroundColor;
+  final BoxDecoration? childrenBoxDecoration;
 
   @override
   State<ExpandableFab> createState() => _ExpandableFabState();
@@ -104,70 +108,63 @@ class _ExpandableFabState extends State<ExpandableFab>
   @override
   Widget build(BuildContext context) {
     final Size _size = MediaQuery.of(context).size;
-    return Stack(
+    return SizedBox.expand(
       key: _key,
-      alignment: widget.childrenAlignment ?? Alignment.topRight,
-      clipBehavior: Clip.none,
-      children: [
-        DraggableWidget(parentKey: _key,
-          initialOffset:const Offset(0, 0),
-          child: Padding(
-            padding: widget.childrenMargin ??
-                const EdgeInsets.only(top: 100, right: 10,left: 10,bottom: 10),
-            child: AnimatedContainer(
-              curve: widget.curveAnimation ?? Curves.linear,
-              duration: _duration,
-              decoration: BoxDecoration(
-                  boxShadow:[
-                    BoxShadow(
-                        offset: const Offset(1, 2),
-                        blurRadius: 4,
-                        spreadRadius: 2,
-                        color:_open?Colors.black54: Colors.transparent)
-                  ],
-                  color: _open
-                      ? (widget.childrenBacgroundColor ?? Colors.black)
-                      : Colors.transparent,
-                  borderRadius: const BorderRadius.all(Radius.circular(20))),
-              child: FittedBox(
-                fit: BoxFit.fitHeight,
-                child: widget.childrenType == ChildrenType.rowChildren
-                    ? Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          ..._buildExpandingActionButtons(),
-                        ],
-                      )
-                    : Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [..._buildExpandingActionButtons()],
-                      ),
+      child: Stack(
+        alignment:widget.childrenAlignment??Alignment.topCenter,
+        clipBehavior: Clip.none,
+        children: [
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 500),
+            transitionBuilder: (Widget child, Animation<double> animation) {
+             return FadeTransition(opacity: animation, child: child);
+             // return ScaleTransition(scale: animation, child: child);
+            },
+            child:!_open?const SizedBox.shrink():Container(
+              decoration:widget.childrenBoxDecoration??BoxDecoration(
+                color: Colors.black54,
+                borderRadius: BorderRadius.circular(20)
+              ) ,
+              margin:  widget.childrenMargin ??
+                  const EdgeInsets.only(top: 100, right: 10,left: 10,bottom: 10),
+              child:  widget.childrenType == ChildrenType.rowChildren
+                  ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ..._buildExpandingActionButtons(),
+                ],
+              )
+                  : Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [..._buildExpandingActionButtons()],
               ),
-            ),
+            )
           ),
+          //  Container(color: Colors.red,width: 40,height: 40,),
+          // ColoredBox(color: Colors.black12,child: SizedBox(width: 200,height: 200,)),
+    DraggableWidget(
+      parentKey: _key,
+      initialOffset: Offset(
+          0, _size.height-80),
+      child: ColoredBox(
+        color: Colors.transparent,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            _buildTapToCloseFab(),
+            _buildTapToOpenFab(),
+          ],
         ),
-
-        //  Container(color: Colors.red,width: 40,height: 40,),
-        // ColoredBox(color: Colors.black12,child: SizedBox(width: 200,height: 200,)),
-        DraggableFab(
-          initPosition: Offset(
-              _size.width - widget.distance, _size.height - widget.distance),
-          child: Stack(
-            alignment: Alignment.bottomCenter,
-            children: [
-              _buildTapToCloseFab(),
-              _buildTapToOpenFab(),
-            ],
-          ),
-        )
-      ],
+      ),)
+        ],
+      ),
     );
   }
 
   Widget _buildTapToCloseFab() {
     return Visibility(
       visible: widget.children.isNotEmpty,
-      child: InkWell(
+      child: GestureDetector(
         onTap: _toggle,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -200,6 +197,7 @@ class _ExpandableFabState extends State<ExpandableFab>
         i++, angleInDegrees += step) {
       children.add(
         _ExpandingActionButton(
+          enableOpenAnimation: widget.enableChildrenOpenAnimation!,
           open: _open,
           childrenMargin: widget.childrenInnerMargin,
           closePosition: widget.closePosition!,
@@ -234,8 +232,7 @@ class _ExpandableFabState extends State<ExpandableFab>
                   : 1.0,
           curve: const Interval(0.0, 1.0, curve: Curves.easeInOut),
           duration: _duration,
-          child: InkWell(
-
+          child: GestureDetector(
             onTap: _toggle,
             child: widget.openWidget ??
                 Container(
@@ -269,10 +266,12 @@ class _ExpandingActionButton extends StatelessWidget {
       required this.child,
       required this.open,
       required this.closeRotate,
-      required this.closePosition});
+      required this.closePosition,
+      required this.enableOpenAnimation});
 
   final bool closeRotate;
   final bool open;
+  final bool enableOpenAnimation;
   final double directionInDegrees;
   final double maxDistance;
   final Animation<double> progress;
@@ -297,7 +296,7 @@ class _ExpandingActionButton extends StatelessWidget {
                     angle: closeRotate == true
                         ? 0
                         : (1.0 - progress.value) * math.pi,
-                    child: Padding(padding: EdgeInsets.symmetric(vertical:open?offset.dy:0,horizontal:open?offset.dy:0 ),child: child!)));
+                    child: Padding(padding:enableOpenAnimation?EdgeInsets.symmetric(vertical:open?offset.dy:0,horizontal:open?offset.dy:0 ):EdgeInsets.zero,child: child!)));
       },
       child: FadeTransition(
         opacity: progress,
