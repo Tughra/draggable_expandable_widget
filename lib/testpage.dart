@@ -1,5 +1,5 @@
 import 'package:draggable_expandable_widget/asd.dart';
-import 'package:draggable_expandable_widget/expandable_widget.dart';
+import 'package:draggable_expandable_widget/expandable_draggable_widget.dart';
 import 'package:flutter/material.dart';
 
 class ASD extends StatefulWidget {
@@ -14,6 +14,7 @@ class _ASDState extends State<ASD> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: DraggableFab(child:ExpandableFab(
+        childrenCount: 5,
         onTab: (){
           Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ASD()));
         },

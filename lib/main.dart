@@ -1,7 +1,6 @@
-import 'package:draggable_expandable_widget/draggable_widget.dart';
-import 'package:draggable_expandable_widget/expandable_widget.dart';
+
+import 'package:draggable_expandable_widget/expandable_draggable_widget.dart';
 import 'package:draggable_expandable_widget/float_action_location.dart';
-import 'package:draggable_expandable_widget/testpage.dart';
 import 'package:flutter/material.dart';
 
 import 'asd.dart';
@@ -79,26 +78,33 @@ class _MyHomePageState extends State<MyHomePage> {
     print(_size.width);
     print(_size.height);
     return Scaffold(
+      floatingActionButtonAnimator: NoScalingAnimation(),
       floatingActionButtonLocation:ExpandableFloatLocation(),
         floatingActionButton: ExpandableFab(
-          enableChildrenOpenAnimation: false,
+        //  openWidget: Container(color: Colors.amber,width: 200,height: 200,),
+          childrenCount: 6,
+          initialOpen: true,
+          childrenBoxDecoration: const BoxDecoration(),
+          enableChildrenAnimation: true,
           curveAnimation: Curves.linear,
           reverseAnimation: Curves.linear,
-          childrenType: ChildrenType.columnChildren,
-          closeRotate: true,
-          childrenAlignment: Alignment.topLeft,
-
+          childrenType: ChildrenType.rowChildren,
+          closeChildrenRotate: true,
+          childrenAlignment: Alignment.topRight,
           onTab: (){
+            print("12321312321");
            // Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ASD()));
           },
 
-          distance: 100,
+          distance: 150,
           children: [
-            FloatingActionButton(onPressed: (){},child: Icon(Icons.accessibility_rounded),),
-            FloatingActionButton(onPressed: (){},child: Icon(Icons.accessibility_rounded),),
-            FloatingActionButton(onPressed: (){},child: Icon(Icons.accessibility_rounded),),
-            FloatingActionButton(onPressed: (){},child: Icon(Icons.accessibility_rounded),),
-            FloatingActionButton(onPressed: (){},child: Icon(Icons.accessibility_rounded),),
+            Container(color: Colors.teal,width: 100,height: 110,),
+            Container(color: Colors.red,width: 100,height: 110,),
+            Container(color: Colors.greenAccent,width: 100,height: 110,),
+            Container(color: Colors.amberAccent,width: 100,height: 110,),
+            Container(color: Colors.black,width: 100,height: 110,),
+            Container(color: Colors.amberAccent,width: 100,height: 110,),
+
            //Container(width: 100,height: 100,color: Colors.red,)
           ],
         ),
@@ -120,4 +126,21 @@ class _MyHomePageState extends State<MyHomePage> {
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+}
+class NoScalingAnimation extends FloatingActionButtonAnimator {
+  @override
+  Offset getOffset({required Offset begin, required Offset end, required double progress}) {
+   return end;
+  }
+
+  @override
+  Animation<double> getRotationAnimation({required Animation<double> parent}) {
+    return Tween<double>(begin: 1.0, end: 1.0).animate(parent);
+  }
+
+  @override
+  Animation<double> getScaleAnimation({required Animation<double> parent}) {
+    return Tween<double>(begin: 1.0, end: 1.0).animate(parent);
+  }
+
 }

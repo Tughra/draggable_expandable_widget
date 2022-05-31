@@ -1,13 +1,7 @@
 import 'dart:math' as math;
-
-import 'package:draggable_expandable_widget/asd.dart';
 import 'package:draggable_expandable_widget/draggable_widget.dart';
 import 'package:flutter/material.dart';
 
-enum ClosePosition {
-  closeToRight,
-  closeToLeft,
-}
 
 enum ChildrenType {
   rowChildren,
@@ -18,44 +12,59 @@ enum ChildrenType {
 class ExpandableFab extends StatefulWidget {
   const ExpandableFab(
       {super.key,
+      this.initialDraggableOffset,
       this.childrenType = ChildrenType.rowChildren,
       this.initialOpen,
       this.onTab,
       this.duration,
-      this.closeRotate = false,
+      this.closeChildrenRotate = false,
       required this.distance,
       required this.children,
+      required this.childrenCount,
       this.openWidget,
       this.closeWidget,
       this.childrenAlignment,
-      this.closePosition = ClosePosition.closeToRight,
       this.curveAnimation,
       this.reverseAnimation,
       this.childrenMargin,
       this.childrenBacgroundColor,
       this.childrenInnerMargin,
-      this.enableChildrenOpenAnimation=true,
+      this.enableChildrenAnimation=true,
       this.childrenBoxDecoration});
 
   final ChildrenType? childrenType;
-  final ClosePosition? closePosition;
+  /// Animation duration.
   final Duration? duration;
+  /// Visible children when first navigate.
   final bool? initialOpen;
-  final bool? closeRotate;
+  /// Close children's rotate animation when open and close
+  final bool? closeChildrenRotate;
   final VoidCallback? onTab;
   final Widget? closeWidget;
   final Widget? openWidget;
+  /// Alignment of children.
   final Alignment? childrenAlignment;
+  /// Children's curve animation when open.
   final Curve? curveAnimation;
+  /// Children's curve animation when close.
   final Curve? reverseAnimation;
-  final bool? enableChildrenOpenAnimation;
-
-  /// Open and Close Widget's initial distance from bottom right
+  /// Children's animation when open and close.
+  final bool? enableChildrenAnimation;
+  /// Initial offset of the draggable widget.
+  /// Offset(0,0) is the upper right corner. If you want to move it to the bottom right position, subtract the widget height from the device height.
+  /// Use hot reload when you set initial position.
+  final Offset? initialDraggableOffset;
+  /// Children's animation distance when open and close.
   final double distance;
+  /// Margin between widgets.
   final EdgeInsets? childrenInnerMargin;
+  /// Margin of children
   final EdgeInsets? childrenMargin;
   final List<Widget> children;
+  final int childrenCount;
+  /// Children's container color. When you want to more customize use "childrenBoxDecoration".
   final Color? childrenBacgroundColor;
+  /// Children's box decoration.
   final BoxDecoration? childrenBoxDecoration;
 
   @override
@@ -107,7 +116,7 @@ class _ExpandableFabState extends State<ExpandableFab>
 
   @override
   Widget build(BuildContext context) {
-    final Size _size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.of(context).size;
     return SizedBox.expand(
       key: _key,
       child: Stack(
@@ -118,34 +127,39 @@ class _ExpandableFabState extends State<ExpandableFab>
             duration: const Duration(milliseconds: 500),
             transitionBuilder: (Widget child, Animation<double> animation) {
              return FadeTransition(opacity: animation, child: child);
-             // return ScaleTransition(scale: animation, child: child);
+            //  return ScaleTransition(scale: animation, child: child);
             },
             child:!_open?const SizedBox.shrink():Container(
               decoration:widget.childrenBoxDecoration??BoxDecoration(
-                color: Colors.black54,
+                color:widget.childrenBacgroundColor??Colors.black54,
                 borderRadius: BorderRadius.circular(20)
               ) ,
               margin:  widget.childrenMargin ??
                   const EdgeInsets.only(top: 100, right: 10,left: 10,bottom: 10),
               child:  widget.childrenType == ChildrenType.rowChildren
-                  ? Row(
+                  ? SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                    child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  ..._buildExpandingActionButtons(),
+                    ..._buildExpandingActionButtons(),
                 ],
-              )
-                  : Column(
+              ),
+                  )
+                  : SingleChildScrollView(
+                    child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [..._buildExpandingActionButtons()],
               ),
+                  ),
             )
           ),
           //  Container(color: Colors.red,width: 40,height: 40,),
           // ColoredBox(color: Colors.black12,child: SizedBox(width: 200,height: 200,)),
     DraggableWidget(
       parentKey: _key,
-      initialOffset: Offset(
-          0, _size.height-80),
+      initialOffset:widget.initialDraggableOffset??Offset(
+          20, size.height-80),
       child: ColoredBox(
         color: Colors.transparent,
         child: Stack(
@@ -190,18 +204,17 @@ class _ExpandableFabState extends State<ExpandableFab>
 
   List<Widget> _buildExpandingActionButtons() {
     final children = <Widget>[];
-    final count = widget.children.length;
+    final count = widget.childrenCount;
     final step = 18 * count / (count / 2);
     for (var i = 0, angleInDegrees = 0.0;
         i < count;
         i++, angleInDegrees += step) {
       children.add(
         _ExpandingActionButton(
-          enableOpenAnimation: widget.enableChildrenOpenAnimation!,
+          enableOpenAnimation: widget.enableChildrenAnimation!,
           open: _open,
           childrenMargin: widget.childrenInnerMargin,
-          closePosition: widget.closePosition!,
-          closeRotate: widget.closeRotate!,
+          closeChildrenRotate: widget.closeChildrenRotate!,
           directionInDegrees: angleInDegrees,
           maxDistance: widget.distance,
           progress: _expandAnimation,
@@ -265,18 +278,16 @@ class _ExpandingActionButton extends StatelessWidget {
       required this.progress,
       required this.child,
       required this.open,
-      required this.closeRotate,
-      required this.closePosition,
+      required this.closeChildrenRotate,
       required this.enableOpenAnimation});
 
-  final bool closeRotate;
+  final bool closeChildrenRotate;
   final bool open;
   final bool enableOpenAnimation;
   final double directionInDegrees;
   final double maxDistance;
   final Animation<double> progress;
   final Widget child;
-  final ClosePosition closePosition;
   final EdgeInsets? childrenMargin;
 
   @override
@@ -293,15 +304,13 @@ class _ExpandingActionButton extends StatelessWidget {
         return Padding(
             padding: childrenMargin ?? const EdgeInsets.all(10),
             child: Transform.rotate(
-                    angle: closeRotate == true
+                    angle: closeChildrenRotate == true
                         ? 0
                         : (1.0 - progress.value) * math.pi,
                     child: Padding(padding:enableOpenAnimation?EdgeInsets.symmetric(vertical:open?offset.dy:0,horizontal:open?offset.dy:0 ):EdgeInsets.zero,child: child!)));
       },
-      child: FadeTransition(
-        opacity: progress,
-        child: child,
-      ),
+      child: FadeTransition(opacity: progress,
+      child: child),
     );
     /*
     Transform.translate(
