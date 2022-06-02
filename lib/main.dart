@@ -1,9 +1,6 @@
-
 import 'package:draggable_expandable_widget/expandable_draggable_widget.dart';
 import 'package:draggable_expandable_widget/float_action_location.dart';
 import 'package:flutter/material.dart';
-
-import 'asd.dart';
 
 void main() {
   runApp(const MyApp());
@@ -55,6 +52,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+
   void _incrementCounter() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
@@ -74,40 +72,98 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    final Size _size=MediaQuery.of(context).size;
+    final Size _size = MediaQuery.of(context).size;
     print(_size.width);
     print(_size.height);
     return Scaffold(
       floatingActionButtonAnimator: NoScalingAnimation(),
-      floatingActionButtonLocation:ExpandableFloatLocation(),
-        floatingActionButton: ExpandableFab(
+      floatingActionButtonLocation: ExpandableFloatLocation(),
+      floatingActionButton: ExpandableFab(
         //  openWidget: Container(color: Colors.amber,width: 200,height: 200,),
-          childrenCount: 6,
-          initialOpen: true,
-          childrenBoxDecoration: const BoxDecoration(),
-          enableChildrenAnimation: true,
-          curveAnimation: Curves.linear,
-          reverseAnimation: Curves.linear,
-          childrenType: ChildrenType.rowChildren,
-          closeChildrenRotate: true,
-          childrenAlignment: Alignment.topRight,
-          onTab: (){
-            print("12321312321");
-           // Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ASD()));
-          },
-
-          distance: 150,
-          children: [
-            Container(color: Colors.teal,width: 100,height: 110,),
-            Container(color: Colors.red,width: 100,height: 110,),
-            Container(color: Colors.greenAccent,width: 100,height: 110,),
-            Container(color: Colors.amberAccent,width: 100,height: 110,),
-            Container(color: Colors.black,width: 100,height: 110,),
-            Container(color: Colors.amberAccent,width: 100,height: 110,),
-
-           //Container(width: 100,height: 100,color: Colors.red,)
-          ],
+        childrenCount: 4,
+        closeWidget: Container(
+          key: const ValueKey<String>("closeWidget"),
+          color: Colors.amber,
+          width: 50,
+          height: 50,
         ),
+        openWidget: Container(
+          key: const ValueKey<String>("openWidget"),
+          color: Colors.black,
+          width: 100,
+          height: 100,
+        ),
+        childrenTransition: ChildrenTransition.fadeTransation,
+        initialOpen: false,
+        childrenBoxDecoration: const BoxDecoration(),
+        enableChildrenAnimation: true,
+        curveAnimation: Curves.linear,
+        reverseAnimation: Curves.linear,
+        childrenType: ChildrenType.rowChildren,
+        closeChildrenRotate: true,
+        childrenAlignment: Alignment.topRight,
+        onTab: () {
+          print("12321312321");
+          // Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ASD()));
+        },
+
+        distance: 150,
+        children: [
+          Container(
+            key: const Key("opened1"),
+            color: Colors.teal,
+            width: 100,
+            height: 110,
+          ),
+          Container(
+            key: const Key("opened2"),
+            color: Colors.teal,
+            width: 100,
+            height: 110,
+          ),
+          Container(
+            key: const Key("opened3"),
+            color: Colors.teal,
+            width: 100,
+            height: 110,
+          ),
+          Container(
+            key: const Key("opened4"),
+            color: Colors.teal,
+            width: 100,
+            height: 110,
+          ),
+          /*
+          Container(
+            color: Colors.red,
+            width: 100,
+            height: 110,
+          ),
+          Container(
+            color: Colors.greenAccent,
+            width: 100,
+            height: 110,
+          ),
+          Container(
+            color: Colors.amberAccent,
+            width: 100,
+            height: 110,
+          ),
+          Container(
+            color: Colors.black,
+            width: 100,
+            height: 110,
+          ),
+          Container(
+            color: Colors.amberAccent,
+            width: 100,
+            height: 110,
+          ),
+           */
+
+          //Container(width: 100,height: 100,color: Colors.red,)
+        ],
+      ),
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
@@ -118,29 +174,14 @@ class _MyHomePageState extends State<MyHomePage> {
         height: MediaQuery.of(context).size.height,
         color: Colors.transparent,
         child: Center(
-          child: TextButton(onPressed: (){
-            print("12312312312");
-          }, child: Text("dddd")),
+          child: TextButton(
+              onPressed: () {
+                print("12312312312");
+              },
+              child: Text("dddd")),
         ),
         //child: Center(child: Container(color: Colors.red,width: 200,height: 200,child: DraggableFab(child:Text("123"),),),),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
-}
-class NoScalingAnimation extends FloatingActionButtonAnimator {
-  @override
-  Offset getOffset({required Offset begin, required Offset end, required double progress}) {
-   return end;
-  }
-
-  @override
-  Animation<double> getRotationAnimation({required Animation<double> parent}) {
-    return Tween<double>(begin: 1.0, end: 1.0).animate(parent);
-  }
-
-  @override
-  Animation<double> getScaleAnimation({required Animation<double> parent}) {
-    return Tween<double>(begin: 1.0, end: 1.0).animate(parent);
-  }
-
 }

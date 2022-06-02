@@ -3,10 +3,6 @@ import 'package:draggable_expandable_widget/draggable_widget.dart';
 import 'package:flutter/material.dart';
 
 
-enum ChildrenType {
-  rowChildren,
-  columnChildren,
-}
 
 @immutable
 class ExpandableFab extends StatefulWidget {
@@ -21,6 +17,7 @@ class ExpandableFab extends StatefulWidget {
       required this.distance,
       required this.children,
       required this.childrenCount,
+      this.childrenTransition,
       this.openWidget,
       this.closeWidget,
       this.childrenAlignment,
@@ -39,11 +36,17 @@ class ExpandableFab extends StatefulWidget {
   final bool? initialOpen;
   /// Close children's rotate animation when open and close
   final bool? closeChildrenRotate;
+  /// The callback that is called when the open and close button is tapped or otherwise activated.
+  /// If this is set to null, the button will be disabled.
   final VoidCallback? onTab;
+  /// Closing widget. Avoid using clickable widgets like floating action button, inkwell etc.
   final Widget? closeWidget;
+  /// Opening widget. Avoid using clickable widgets like floating action button, inkwell etc.
   final Widget? openWidget;
   /// Alignment of children.
   final Alignment? childrenAlignment;
+  /// Transition of children when open and close.
+  final ChildrenTransition? childrenTransition;
   /// Children's curve animation when open.
   final Curve? curveAnimation;
   /// Children's curve animation when close.
@@ -58,7 +61,7 @@ class ExpandableFab extends StatefulWidget {
   final double distance;
   /// Margin between widgets.
   final EdgeInsets? childrenInnerMargin;
-  /// Margin of children
+  /// Margin of children.
   final EdgeInsets? childrenMargin;
   final List<Widget> children;
   final int childrenCount;
@@ -126,8 +129,12 @@ class _ExpandableFabState extends State<ExpandableFab>
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 500),
             transitionBuilder: (Widget child, Animation<double> animation) {
-             return FadeTransition(opacity: animation, child: child);
-            //  return ScaleTransition(scale: animation, child: child);
+              if(widget.childrenTransition==ChildrenTransition.fadeTransation||widget.childrenTransition==null) {
+                return FadeTransition(opacity: animation, child: child);
+              }
+              else {
+                return ScaleTransition(scale: animation, child: child);
+              }
             },
             child:!_open?const SizedBox.shrink():Container(
               decoration:widget.childrenBoxDecoration??BoxDecoration(
@@ -179,6 +186,7 @@ class _ExpandableFabState extends State<ExpandableFab>
     return Visibility(
       visible: widget.children.isNotEmpty,
       child: GestureDetector(
+
         onTap: _toggle,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -195,7 +203,7 @@ class _ExpandableFabState extends State<ExpandableFab>
                   height: 46,
                   child: const Icon(
                     Icons.clear,
-                    color: Colors.blue,
+                    color: Colors.black,
                   )),
         ),
       ),
@@ -255,7 +263,7 @@ class _ExpandableFabState extends State<ExpandableFab>
                           blurRadius: 4,
                           spreadRadius: 2,
                           color: Colors.black38)
-                    ], shape: BoxShape.circle, color: Colors.blue),
+                    ], shape: BoxShape.circle, color: Colors.black),
                     width: 60,
                     height: 60,
                     child: const Icon(
@@ -320,53 +328,34 @@ class _ExpandingActionButton extends StatelessWidget {
      */
   }
 }
-
-@immutable
-class ActionButton extends StatelessWidget {
-  const ActionButton({
-    super.key,
-    this.onPressed,
-    required this.icon,
-  });
-
-  final VoidCallback? onPressed;
-  final Widget icon;
+class NoScalingAnimation extends FloatingActionButtonAnimator {
+  @override
+  Offset getOffset({required Offset begin, required Offset end, required double progress}) {
+    return end;
+  }
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Material(
-      shape: const CircleBorder(),
-      clipBehavior: Clip.antiAlias,
-      color: theme.colorScheme.secondary,
-      elevation: 4.0,
-      child: IconButton(
-        onPressed: onPressed,
-        icon: icon,
-        color: theme.colorScheme.secondary,
-      ),
-    );
+  Animation<double> getRotationAnimation({required Animation<double> parent}) {
+    return Tween<double>(begin: 1.0, end: 1.0).animate(parent);
+  }
+
+  @override
+  Animation<double> getScaleAnimation({required Animation<double> parent}) {
+    return Tween<double>(begin: 1.0, end: 1.0).animate(parent);
+  }
+
+}
+class ExpandableFloatLocation extends FloatingActionButtonLocation{
+  @override
+  Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry) {
+    return const Offset(0, 0);
   }
 }
-
-@immutable
-class FakeItem extends StatelessWidget {
-  const FakeItem({
-    super.key,
-    required this.isBig,
-  });
-
-  final bool isBig;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24.0),
-      height: isBig ? 128.0 : 36.0,
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-        color: Colors.grey.shade300,
-      ),
-    );
-  }
+enum ChildrenTransition{
+  scaleTransation,
+  fadeTransation
+}
+enum ChildrenType {
+  rowChildren,
+  columnChildren,
 }
